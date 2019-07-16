@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,20 +14,22 @@ namespace PruebaSoap
     {
         static void Main(string[] args)
         {
+            try
+            {
+                SOAP soap = new SOAP();
+                soap.CallWebService();
+            }
+            catch (WebException err)
+            {
 
-            //SOAP soap = new SOAP();
-            //soap.Execute();
+                Console.WriteLine(err.Message);
+                Console.ReadKey();
 
-            WS.billServiceClient client = new WS.billServiceClient();
-            client.ClientCredentials.UserName.UserName = "";
-            client.ClientCredentials.UserName.UserName = "";
-            try {
-                var res = client.getStatus("20100030838", "01", "FOL1", 0247510);
             }
             catch (Exception err) {
 
                 Console.WriteLine(err.Message);
-
+                Console.ReadKey();
             }
         }
     }
