@@ -73,8 +73,8 @@ namespace PruebaSoap
 	                                        <soapenv:Header>
 		                                        <wsse:Security>
 			                                        <wsse:UsernameToken>
-				                                        <wsse:Username></wsse:Username>
-				                                        <wsse:Password></wsse:Password>
+				                                        <wsse:Username>XXX</wsse:Username>
+				                                        <wsse:Password>XXX</wsse:Password>
 			                                        </wsse:UsernameToken>
 		                                        </wsse:Security>
 	                                        </soapenv:Header>
