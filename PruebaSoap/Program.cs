@@ -14,23 +14,82 @@ namespace PruebaSoap
     {
         static void Main(string[] args)
         {
-            try
+            List<Comprobante> lista = new List<Comprobante>();
+
+
+
+            string originPath = Directory.GetCurrentDirectory();
+
+            string filePath = Directory.GetFiles(originPath, "documentos.csv")[0];//@"D:\documentos.csv";
+            string credencialesPath = Directory.GetFiles(originPath, "credenciales.csv")[0];//@"D:\documentos.csv";
+            string fileResponsePath = originPath + "//" + "responseConsult.txt";
+
+            string line, user, pass, ruc;
+
+            char[] charSeparators = new char[] { ';' };
+            string[] creden = null;
+            string[] datos;
+
+            if (File.Exists(credencialesPath))
             {
-                SOAP soap = new SOAP();
-                soap.CallWebService();
+                StreamReader fileC = null;
+
+                fileC = new StreamReader(credencialesPath);
+                creden = fileC.ReadLine().Split(charSeparators, StringSplitOptions.None);
             }
-            catch (WebException err)
+
+            if (File.Exists(filePath))
             {
-
-                Console.WriteLine(err.Message);
-                Console.ReadKey();
-
+                StreamReader file = null;
+                try
+                {
+                    file = new StreamReader(filePath);
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        datos = line.Split(charSeparators, StringSplitOptions.None);
+                        lista.Add(new Comprobante(creden[0], creden[1], creden[2], datos[0], datos[1], datos[2]));
+                    }
+                }
+                finally
+                {
+                    if (file != null)
+                        file.Close();
+                }
             }
-            catch (Exception err) {
 
-                Console.WriteLine(err.Message);
-                Console.ReadKey();
+
+            foreach (Comprobante item in lista)
+            {
+                try
+                {
+                    SOAP soap = new SOAP();
+                    soap.CallWebService(item);
+                }
+                catch (WebException err)
+                {
+
+                    Console.WriteLine(err.Message);
+                    Console.ReadKey();
+
+                }
+                catch (Exception err)
+                {
+
+                    Console.WriteLine(err.Message);
+                    Console.ReadKey();
+                }
             }
+
+            using (TextWriter writer = File.CreateText(fileResponsePath))
+            {
+                foreach (Comprobante item in lista)
+                {
+
+                    writer.WriteLine(item.serieComprobante + "|" + item.numeroComprobante + "|" + item.respuetas);
+                }
+            }
+
+            Console.ReadKey();
         }
     }
 }

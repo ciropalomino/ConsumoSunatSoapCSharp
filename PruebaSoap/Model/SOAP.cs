@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace PruebaSoap
 {
@@ -21,11 +22,11 @@ namespace PruebaSoap
 
         }
 
-        public void CallWebService()
+        public void CallWebService(Comprobante item)
         {
             var _url = @"https://e-factura.sunat.gob.pe/ol-it-wsconscpegem/billConsultService";
             var _action = @"urn:getStatus";
-            XmlDocument soapEnvelopeXml = CreateSoapEnvelope();
+            XmlDocument soapEnvelopeXml = CreateSoapEnvelope(item);
             HttpWebRequest webRequest = CreateWebRequest(_url, _action);
             InsertSoapEnvelopeIntoWebRequest(soapEnvelopeXml, webRequest);
 
@@ -46,8 +47,11 @@ namespace PruebaSoap
                     soapResult = rd.ReadToEnd();
                     rd.Close();
                 }
-                Console.WriteLine(soapResult);
-                Console.ReadKey();
+               
+                XElement xelement = XElement.Parse(soapResult);
+                item.respuetas = xelement.Value;
+                Console.WriteLine(xelement.Value);
+                
             }
         }
 
@@ -63,34 +67,46 @@ namespace PruebaSoap
             return webRequest;
         }
 
-        private static XmlDocument CreateSoapEnvelope()
+        private static XmlDocument CreateSoapEnvelope(Comprobante item)
         {
             XmlDocument soapEnvelopeDocument = new XmlDocument();
-            soapEnvelopeDocument.LoadXml(@"<soapenv:Envelope
+
+            String sXML = @"<soapenv:Envelope
 	                                        xmlns:ser=""http://service.sunat.gob.pe""
                                             xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/""
                                             xmlns:wsse=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"" >
 	                                        <soapenv:Header>
 		                                        <wsse:Security>
 			                                        <wsse:UsernameToken>
-				                                        <wsse:Username>X-X-X</wsse:Username>
-				                                        <wsse:Password>X-X-X</wsse:Password>
+				                                        <wsse:Username>@@Username</wsse:Username>
+				                                        <wsse:Password>@@Password</wsse:Password>
 			                                        </wsse:UsernameToken>
 		                                        </wsse:Security>
 	                                        </soapenv:Header>
 	                                        <soapenv:Body>
 		                                        <ser:getStatus>
 			                                        <!--Optional:-->
-			                                        <rucComprobante>20100030838</rucComprobante>
+			                                        <rucComprobante>@@rucComprobante</rucComprobante>
 			                                        <!--Optional:-->
-			                                        <tipoComprobante>01</tipoComprobante>
+			                                        <tipoComprobante>@tipoComprobante</tipoComprobante>
 			                                        <!--Optional:-->
-			                                        <serieComprobante>FOL1</serieComprobante>
+			                                        <serieComprobante>@serieComprobante</serieComprobante>
 			                                        <!--Optional:-->
-			                                        <numeroComprobante>0247510</numeroComprobante>
+			                                        <numeroComprobante>@numeroComprobante</numeroComprobante>
 		                                        </ser:getStatus>
 	                                        </soapenv:Body>
-                                        </soapenv:Envelope>");
+                                        </soapenv:Envelope>";
+
+            sXML = sXML.Replace("@@Username", item.username);
+            sXML = sXML.Replace("@@Password", item.password);
+            sXML = sXML.Replace("@@rucComprobante", item.rucComprobante);
+
+            sXML = sXML.Replace("@tipoComprobante"  ,item.tipoComprobante);
+            sXML = sXML.Replace("@serieComprobante" , item.serieComprobante);
+            sXML = sXML.Replace("@numeroComprobante", item.numeroComprobante);
+
+
+            soapEnvelopeDocument.LoadXml(sXML);
             return soapEnvelopeDocument;
         }
 
