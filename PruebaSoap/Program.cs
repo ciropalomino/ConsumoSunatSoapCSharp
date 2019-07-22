@@ -85,7 +85,9 @@ namespace PruebaSoap
                 foreach (Comprobante item in lista)
                 {
 
-                    writer.WriteLine(item.serieComprobante + "|" + item.numeroComprobante + "|" + item.respuetas);
+                    writer.WriteLine("01- "+item.serieComprobante + "-" + item.numeroComprobante 
+                                     + "\t" + item.respuetas.Substring(0,4) 
+                                     + "\t"+ item.respuetas.Substring(item.respuetas.IndexOf("El comprobante"), item.respuetas.Length - item.respuetas.IndexOf("El comprobante")));
                 }
             }
 
